@@ -1,4 +1,4 @@
-# BeeGFS demo server
+# BeeGFS demo server [![Docker](https://github.com/apriorit/docker-beegfs-demo/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/apriorit/docker-beegfs-demo/actions/workflows/docker-publish.yml)
 
 ## Introduction
 
