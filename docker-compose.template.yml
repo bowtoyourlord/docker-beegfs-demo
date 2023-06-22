@@ -54,7 +54,8 @@ networks:
     driver_opts:
       parent: # interface name, for example: ens33
     ipam:
-      config: # macvlan can't use DHCP so we have provide network configuration manually
+      # macvlan can't use DHCP so we have provide network configuration manually
+      config:
         - subnet: # interface subnet, for example: "192.168.1.0/24"
-          ip_range: # ip range assigned to the services, for example: "192.168.1.64/29"
+          ip_range: # ip range assigned to the services, for example: "192.168.1.64/30"
           gateway: # ip address of the gateway, for example: "192.168.1.1"

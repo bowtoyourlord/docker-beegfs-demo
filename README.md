@@ -1,1 +1,166 @@
-# docker-beegfs-demo
+# BeeGFS demo server
+
+## Introduction
+
+This repository describes setup of the [BeeGFS](https://www.beegfs.io) server environment for testing purposes. It will create **management**, **metadata** and **storage** nodes with `macvlan` networking (they will have each own ip address accessible from outside). It's supposed to be used with a BeeGFS client running on another machine.
+
+Docker images are based on [RedCoolBeans/docker-beegfs](https://github.com/RedCoolBeans/docker-beegfs) but use Ubuntu 20.04 as the parent image instead of CentOS 7.
+
+> **Note** The instructions are written for a Debian-based system (Debian, Ubuntu, Mint) but can be adopted and run on any other system.
+
+## Pre-requisites
+
+The following packages are required for Ubuntu 20.04:
+* git
+* docker
+* docker-compose
+
+```sh
+sudo apt install docker docker-compose git
+```
+
+Add a local user to the `docker` group:
+
+```sh
+sudo usermod -aG docker $USER
+```
+
+> **Note** Make sure the group membership is applied correctly to the user, e.g. re-login to the session or reboot.
+
+## How to run
+
+Clone the repository:
+
+```sh
+git clone https://github.com/apriorit/docker-beegfs-demo.git
+```
+
+Go to `docker-beegfs-demo` and copy `docker-compose.template.yml` to `docker-compose.yml`:
+
+```sh
+cd docker-beegfs-demo
+cp docker-compose.template.yml docker-compose.yml
+```
+
+Edit `docker-compose.yml` to provide your network configuration:
+
+```yml
+networks:
+  beegfs:
+    driver: macvlan
+    driver_opts:
+      parent: # interface name, for example: ens33
+    ipam:
+      # macvlan can't use DHCP so we have provide network configuration manually
+      config:
+        - subnet: # interface subnet, for example: "192.168.1.0/24"
+          ip_range: # ip range assigned to the services, for example: "192.168.1.64/30"
+          gateway: # ip address of the gateway, for example: "192.168.1.1"
+```
+
+To find the interface name and subnet run:
+
+```sh
+ip -o -f inet a
+```
+
+```sh
+> ip -o -f inet a
+1: lo    inet 127.0.0.1/8 scope host lo\       valid_lft forever preferred_lft forever
+2: ens33    inet 192.168.136.129/24 brd 192.168.136.255 scope global dynamic noprefixroute ens33\       valid_lft 1693sec preferred_lft 1693sec
+```
+
+`ens33` is the interface name, the subnet is `192.168.136.129/24`.
+
+To find the gateway run:
+
+```sh
+ip route
+```
+
+```sh
+> ip route
+default via 192.168.136.2 dev ens33 proto dhcp metric 101 
+192.168.136.0/24 dev ens33 proto kernel scope link src 192.168.136.129 metric 101 
+```
+
+The gateway is `192.168.136.2`.
+
+Choose an ip range in your subnet and set it. Docker will assign ip addresses from the range starting from the first value.
+
+> **Note** Make sure the ip adresses in the range is not allocated already to someone else!
+
+Set the ip range to `192.168.136.64/30` for the case described here. It means the first ip address will be `192.168.136.64`, the second will be `192.168.136.65` and so on.
+
+The resulting file should look like this:
+
+```yml
+networks:
+  beegfs:
+    driver: macvlan
+    driver_opts:
+      parent: ens33
+    ipam:
+      # macvlan can't use DHCP so we have provide network configuration manually
+      config:
+        - subnet: "192.168.136.129/24"
+          ip_range: "192.168.136.64/30"
+          gateway: "192.168.136.2"
+```
+
+Run the containers:
+
+```sh
+docker-compose up
+```
+
+To stop the containers press `Ctrl+C`.
+
+To stop the containers and clean up resources:
+
+```sh
+docker-compose down
+```
+
+To find ip addresses allocated to each container run:
+
+```sh
+docker inspect docker-beegfs-demo_beegfs
+```
+
+```sh
+> docker inspect docker-beegfs-demo_beegfs
+[
+        ...
+        "Containers": {
+            "aab157e1e08bf1774564df16d762f2c521b1854b3199a8277b58fdb847e1095a": {
+                "Name": "docker-beegfs-demo_management_1",
+                "EndpointID": "4e70f983f59c897dafedd59bb340b288589413f132f79037f6f16e7cd0e4badd",
+                "MacAddress": "02:42:c0:a8:88:40",
+                "IPv4Address": "192.168.136.64/24",
+                "IPv6Address": ""
+            },
+            "b7e84c57b34207e73d9a9f6ac48f327e2c822cc2c43ca7c3457bc224073a66ae": {
+                "Name": "docker-beegfs-demo_storage_1",
+                "EndpointID": "c47c2b93c83c39a335fde8cf5e2bbf50f51b3f35552f48c9c3319a66580d5783",
+                "MacAddress": "02:42:c0:a8:88:41",
+                "IPv4Address": "192.168.136.65/24",
+                "IPv6Address": ""
+            },
+            "d40ec08ac0fc9a2226e4ec75269c3f72658d1c808aa8acc98f29e3d42d8396ce": {
+                "Name": "docker-beegfs-demo_metadata_1",
+                "EndpointID": "a0a802e44d19f59b41e84c376dc4c57d3df7a9c1ffc1b3fc588d8230cc6b88b8",
+                "MacAddress": "02:42:c0:a8:88:42",
+                "IPv4Address": "192.168.136.66/24",
+                "IPv6Address": ""
+            }
+        },
+        ...
+]
+```
+
+Now you can connect to the management node from another machine using its ip address.
+
+## Links
+* [RedCoolBeans/docker-beegfs](https://github.com/RedCoolBeans/docker-beegfs)
+* [BeeGFS](https://www.beegfs.io)
