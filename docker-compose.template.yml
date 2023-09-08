@@ -29,22 +29,35 @@ services:
     depends_on:
       - management
   
-  storage:
+  storage1:
     image: ghcr.io/apriorit/beegfs-demo-storage
     hostname: node03
     networks:
       beegfs:
         aliases:
           - node03
-          - storage
-    environment:
-      STORAGE_SERVICE_ID: 3
-      STORAGE_TARGET_ID: 301
+          - storage1
     ports:
       - "8003:8003"
       - "8003:8003/udp"
     volumes:
-      - ~/beegfs_storage:/data
+      - ~/beegfs_storage1:/data
+    depends_on:
+      - management
+
+  storage2:
+    image: ghcr.io/apriorit/beegfs-demo-storage
+    hostname: node04
+    networks:
+      beegfs:
+        aliases:
+          - node04
+          - storage2
+    ports:
+      - "8003:8003"
+      - "8003:8003/udp"
+    volumes:
+      - ~/beegfs_storage2:/data
     depends_on:
       - management
 

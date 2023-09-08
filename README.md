@@ -141,7 +141,7 @@ docker inspect docker-beegfs-demo_beegfs
                 "IPv6Address": ""
             },
             "b7e84c57b34207e73d9a9f6ac48f327e2c822cc2c43ca7c3457bc224073a66ae": {
-                "Name": "docker-beegfs-demo_storage_1",
+                "Name": "docker-beegfs-demo_storage1_1",
                 "EndpointID": "c47c2b93c83c39a335fde8cf5e2bbf50f51b3f35552f48c9c3319a66580d5783",
                 "MacAddress": "02:42:c0:a8:88:41",
                 "IPv4Address": "192.168.136.65/24",
@@ -153,13 +153,39 @@ docker inspect docker-beegfs-demo_beegfs
                 "MacAddress": "02:42:c0:a8:88:42",
                 "IPv4Address": "192.168.136.66/24",
                 "IPv6Address": ""
-            }
+            },
+            "948512a8fe83f093461d2398f240d1d7dc8d88ce29a536714ff860a8fbc9a5e4": {
+                "Name": "docker-beegfs-demo_storage2_1",
+                "EndpointID": "9ee3da2f1f28968177040d4f9228165632dcd4172e94e82d73ad980364eae81c",
+                "MacAddress": "02:42:c0:a8:88:43",
+                "IPv4Address": "192.168.136.67/24",
+                "IPv6Address": ""
+            },
+
         },
         ...
 ]
 ```
 
 Now you can connect to the management node from another machine using its ip address.
+
+## How to add more storage nodes
+Currently, `docker-compose.yml` provides 2 services that act as storage nodes: `storage1` and `storage2`.
+
+The main idea behind adding additional storage nodes is to utilize BeeGFS's RAID feature.
+
+The actual stored data is split between them and can be found by these paths:
+```
+/home/<user>/beegfs_storage1/chunks/
+/home/<user>/beegfs_storage2/chunks/
+```
+
+To add additional nodes you should simply add an additional storage service into `docker-compose.yml`. However, there are several config parametes that should be modified:
+
+- the storage service name (i.e. storage3)
+- the hostname (i.e. node05)
+- the aliases
+- the path on the host for data to be stored in (i.e. ~/beegfs_storage3:/data)
 
 ## Links
 * [RedCoolBeans/docker-beegfs](https://github.com/RedCoolBeans/docker-beegfs)
