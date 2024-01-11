@@ -187,6 +187,16 @@ To add additional nodes you should simply add an additional storage service into
 - the aliases
 - the path on the host for data to be stored in (i.e. ~/beegfs_storage3:/data)
 
+## How to use RAM disks (tmpfs) for storage
+Replace `volumes` to `tmpfs` in the `docker-compose.yml`:
+```yml
+    #volumes:
+    #  - ~/beegfs_storage1:/data
+    tmpfs:
+      - /data:rw,exec,size=500000k
+```
+Set the appropriate tmpfs size - there should be enough RAM on your server to accomodate it.
+
 ## Links
 * [RedCoolBeans/docker-beegfs](https://github.com/RedCoolBeans/docker-beegfs)
 * [BeeGFS](https://www.beegfs.io)
