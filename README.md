@@ -197,6 +197,13 @@ Replace `volumes` to `tmpfs` in the `docker-compose.yml`:
 ```
 Set the appropriate tmpfs size - there should be enough RAM on your server to accomodate it.
 
+## Authentication
+By setting up authentication, requests are only accepted from connections that can provide the pre-shared secret.
+
+The setting can be found in `.env`. Authentication is enabled if the `USE_CONN_AUTH` variable is set to `true`. Any other values disable it.
+
+The pre-shared secred in stored in `connauthfile`. If the setting is enabled, the secret should be shared with the client to allow connection.
+
 ## Links
 * [RedCoolBeans/docker-beegfs](https://github.com/RedCoolBeans/docker-beegfs)
 * [BeeGFS](https://www.beegfs.io)
