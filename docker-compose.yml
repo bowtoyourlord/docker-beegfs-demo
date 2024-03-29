@@ -1,0 +1,93 @@
+version: "2"
+
+services:
+  management:
+    build:
+      context: .
+      dockerfile: management/Dockerfile
+    image: ghcr.io/apriorit/beegfs-demo-management
+    environment:
+      USE_CONN_AUTH: ${USE_CONN_AUTH}
+    hostname: node01
+    networks:
+      beegfs:
+        aliases:
+          - node01
+          - management
+    ports:
+      - "8008:8008"
+      - "8008:8008/udp"
+  
+  metadata:
+    build:
+      context: .
+      dockerfile: metadata/Dockerfile
+    image: ghcr.io/apriorit/beegfs-demo-metadata
+    environment:
+      USE_CONN_AUTH: ${USE_CONN_AUTH}
+      METADATA_SERVICE_ID: 2
+    hostname: node02
+    networks:
+      beegfs:
+        aliases:
+          - node02
+          - metadata
+    ports:
+      - "8005:8005"
+      - "8005:8005/udp"
+    depends_on:
+      - management
+  
+  storage:
+    build:
+      context: .
+      dockerfile: storage/Dockerfile
+    image: ghcr.io/apriorit/beegfs-demo-storage
+    environment:
+      USE_CONN_AUTH: ${USE_CONN_AUTH}
+    hostname: node03
+    networks:
+      beegfs:
+        aliases:
+          - node03
+          - storage
+    ports:
+      - "8003:8003"
+      - "8003:8003/udp"
+    volumes:
+      - ~/beegfs_storage:/data
+    depends_on:
+      - management
+
+  storage2:
+    build:
+      context: .
+      dockerfile: storage/Dockerfile
+    image: ghcr.io/apriorit/beegfs-demo-storage
+    environment:
+      USE_CONN_AUTH: ${USE_CONN_AUTH}
+    hostname: node04
+    networks:
+      beegfs:
+        aliases:
+          - node04
+          - storage2
+    ports:
+      - "8003:8003"
+      - "8003:8003/udp"
+    volumes:
+      - ~/beegfs_storage2:/data
+    depends_on:
+      - management
+
+networks:
+  beegfs:
+    driver: macvlan
+    driver_opts:
+      parent: ens33 # interface name, for example: ens33
+    ipam:
+      # macvlan can't use DHCP so we have provide network configuration manually
+      config:
+        - subnet: "192.168.66.0/24" # interface subnet, for example: "192.168.1.0/24"
+          ip_range: "192.168.66.64/30" # ip range assigned to the services, for example: "192.168.1.64/30"
+          gateway: "192.168.66.2" # ip address of the gateway, for example: "192.168.1.1"

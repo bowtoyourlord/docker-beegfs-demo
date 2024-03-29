@@ -15,8 +15,9 @@ RUN apt update && apt install -y apt-transport-https gnupg wget && \
 RUN /opt/beegfs/sbin/beegfs-setup-meta -p /data/beegfs/beegfs_meta \
     -s ${METADATA_SERVICE_ID} -m node01
 
-ADD beegfs/beegfs-meta.conf /etc/beegfs/
-ADD run.sh /
+ADD metadata/beegfs/beegfs-meta.conf /etc/beegfs/
+ADD connauthfile /etc/beegfs/
+ADD metadata/run.sh /
 
 RUN chmod +x /run.sh
 

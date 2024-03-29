@@ -20,9 +20,9 @@ RUN mkdir -p ${STORAGE_LOCATION} && \
 
 VOLUME ${STORAGE_LOCATION}
 
-ADD beegfs/beegfs-storage.conf /etc/beegfs/
-
-ADD run.sh /
+ADD storage/beegfs/beegfs-storage.conf /etc/beegfs/
+ADD connauthfile /etc/beegfs/
+ADD storage/run.sh /
 
 RUN chmod +x /run.sh
 

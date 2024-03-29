@@ -13,8 +13,9 @@ RUN apt update && apt install -y apt-transport-https gnupg wget && \
 
 RUN /opt/beegfs/sbin/beegfs-setup-mgmtd -p /data/beegfs/beegfs_mgmtd
 
-ADD beegfs/beegfs-mgmtd.conf /etc/beegfs/
-ADD run.sh /
+ADD management/beegfs/beegfs-mgmtd.conf /etc/beegfs/
+ADD connauthfile /etc/beegfs/
+ADD management/run.sh /
 
 RUN chmod +x /run.sh
 
