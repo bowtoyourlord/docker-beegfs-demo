@@ -2,7 +2,10 @@ version: "2"
 
 services:
   management:
-    image: ghcr.io/apriorit/beegfs-demo-management
+    image: beegfs-demo-management
+    build: 
+      context: management
+      dockerfile: Dockerfile
     hostname: node01
     networks:
       beegfs:
@@ -14,7 +17,10 @@ services:
       - "8008:8008/udp"
   
   metadata:
-    image: ghcr.io/apriorit/beegfs-demo-metadata
+    image: beegfs-demo-metadata
+    build:
+      context: metadata
+      dockerfile: Dockerfile
     hostname: node02
     networks:
       beegfs:
@@ -30,7 +36,10 @@ services:
       - management
   
   storage1:
-    image: ghcr.io/apriorit/beegfs-demo-storage
+    image: beegfs-demo-storage
+    build: 
+      context: storage
+      dockerfile: Dockerfile
     hostname: node03
     networks:
       beegfs:
@@ -46,7 +55,10 @@ services:
       - management
 
   storage2:
-    image: ghcr.io/apriorit/beegfs-demo-storage
+    image: beegfs-demo-storage
+    build:
+      context: storage
+      dockerfile: Dockerfile
     hostname: node04
     networks:
       beegfs:
@@ -63,7 +75,7 @@ services:
 
 networks:
   beegfs:
-    driver: macvlan
+    driver: macvlan # wifi interfaces are not suitable for macvlan, use ethernet for host machine
     driver_opts:
       parent: # interface name, for example: ens33
     ipam:
