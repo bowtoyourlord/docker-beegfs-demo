@@ -47,7 +47,7 @@ Edit `docker-compose.yml` to provide your network configuration:
 ```yml
 networks:
   beegfs:
-    driver: macvlan
+    driver: macvlan # wifi interfaces are not suitable for macvlan, use ethernet for host machine
     driver_opts:
       parent: # interface name, for example: ens33
     ipam:
@@ -97,7 +97,7 @@ The resulting file should look like this:
 ```yml
 networks:
   beegfs:
-    driver: macvlan
+    driver: macvlan # wifi interfaces are not suitable for macvlan, use ethernet for host machine
     driver_opts:
       parent: ens33
     ipam:
@@ -180,6 +180,7 @@ Lastly, the output of `ip -o -f inet ` which is used to find the subnet, will re
 
 ## Manual images rebuild
 Whether you need to edit the beegfs-[SERVICE].conf file and apply the changes, you must do some additional steps rather than only editing the conf files:
+
 1.	Stop the container:
 ```sh
 docker-compose down
@@ -191,96 +192,6 @@ docker images
 3.	Delete all related images:
 ```sh
 docker images rmi -f [IMAGE_ID]
-```
-Use the following docker-compose.yml file (don’t forget put on your parent, subnet, ip_range and gateway)
-
-```yml
-version: "2"
- 
-services:
-  management:
-    image: beegfs-demo-management
-    build: 
-      context: management
-      dockerfile: Dockerfile
-    hostname: node01
-    networks:
-      beegfs:
-        aliases:
-          - node01
-          - management
-    ports:
-      - "8008:8008"
-      - "8008:8008/udp"
-  
-  metadata:
-    image: beegfs-demo-metadata
-    build:
-      context: metadata
-      dockerfile: Dockerfile
-    hostname: node02
-    networks:
-      beegfs:
-        aliases:
-          - node02
-          - metadata
-    environment:
-      METADATA_SERVICE_ID: 2
-    ports:
-      - "8005:8005"
-      - "8005:8005/udp"
-    depends_on:
-      - management
-  
-  storage1:
-    image: beegfs-demo-storage
-    build: 
-      context: storage
-      dockerfile: Dockerfile
-    hostname: node03
-    networks:
-      beegfs:
-        aliases:
-          - node03
-          - storage1
-    ports:
-      - "8003:8003"
-      - "8003:8003/udp"
-    volumes:
-      - ~/beegfs_storage1:/data
-    depends_on:
-      - management
- 
-  storage2:
-    image: beegfs-demo-storage
-    build:
-      context: storage
-      dockerfile: Dockerfile
-    hostname: node04
-    networks:
-      beegfs:
-        aliases:
-          - node04
-          - storage2
-    ports:
-      - "8003:8003"
-      - "8003:8003/udp"
-    volumes:
-      - ~/beegfs_storage2:/data
-    depends_on:
-      - management
- 
-networks:
-  beegfs:
-    driver: macvlan
-    driver_opts:
-      parent: #for example: eno1
-    ipam:
-      # macvlan can't use DHCP so we have provide network configuration manually
-      config:
-        - subnet: #for example: "192.168.1.0/24"
-          ip_range: #for example: "192.168.1.64/30"
-          gateway: #for example: "192.168.1.1"
 ```
 4.	In the directory where your docker-beegfs.yml file is located, run:
 ```sh
